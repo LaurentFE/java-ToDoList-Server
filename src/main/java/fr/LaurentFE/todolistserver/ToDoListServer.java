@@ -1,15 +1,31 @@
 package fr.LaurentFE.todolistserver;
 
+import com.google.gson.Gson;
+
+import java.io.File;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class ToDoListServer {
 
     private final Connection connection;
 
     public ToDoListServer() {
-        DBInfoReader dbInfoReader = new DBInfoReader();
-        connection = createDBConnection(dbInfoReader);
+        try {
+            File db_credentials = new File("src/main/resources/db-connection-infos.json");
+            Scanner myReader = new Scanner(db_credentials);
+            StringBuilder json_file = new StringBuilder();
+            while (myReader.hasNextLine()) {
+                json_file.append(myReader.nextLine());
+            }
+            Gson gson = new Gson();
+            DBConfig dbconfig = gson.fromJson(json_file.toString(), DBConfig.class);
+            connection = createDBConnection(dbconfig);
+        } catch (IOException e) {
+            throw new RuntimeException("db-connection-infos.json file not found or not formatted properly", e);
+        }
     }
 
     private ToDoList getToDoList(String user_name, String list_name) {
@@ -137,12 +153,12 @@ public class ToDoListServer {
         }
     }
 
-    Connection createDBConnection(DBInfoReader dbInfoReader){
+    Connection createDBConnection(DBConfig conf){
         try {
             Connection con = DriverManager.getConnection(
-                    dbInfoReader.getDb_url(),
-                    dbInfoReader.getDb_user(),
-                    dbInfoReader.getDb_pass());
+                    conf.getDb_url(),
+                    conf.getDb_user(),
+                    conf.getDb_pass());
 
             System.out.println("Connected to database");
             return con;

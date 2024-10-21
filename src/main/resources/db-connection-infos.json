@@ -1,0 +1,5 @@
+{
+  "db_url": "jdbc:mysql://URL:PORT/SCHEMA",
+  "db_user": "username",
+  "db_pass": "password"
+}
