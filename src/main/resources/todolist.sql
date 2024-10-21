@@ -24,7 +24,8 @@ DROP TABLE IF EXISTS items;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE items (
   item_id int NOT NULL,
-  label varchar(45) DEFAULT NULL,
+  label varchar(45) NOT NULL,
+  is_checked tinyint NOT NULL,
   PRIMARY KEY (item_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -35,7 +36,7 @@ CREATE TABLE items (
 
 LOCK TABLES items WRITE;
 /*!40000 ALTER TABLE items DISABLE KEYS */;
-INSERT INTO items VALUES (0,'Milk'),(1,'Cookies'),(2,'Jumping jacks'),(3,'Push ups'),(4,'Honey'),(5,'Ginger');
+INSERT INTO items VALUES (0,'Milk',1),(1,'Cookies',0),(2,'Jumping jacks',0),(3,'Push ups',0),(4,'Honey',0),(5,'Ginger',1);
 /*!40000 ALTER TABLE items ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -151,4 +152,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-10-21 12:34:16
+-- Dump completed on 2024-10-21 14:31:55
