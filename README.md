@@ -7,6 +7,9 @@ This is a WIP of a Java server that will connect to a MySQL Database to store To
 ## How
 
 Programmed in Java
+
 Using IDE IntelliJ
+
 MySQL Database
+
 Maven build
