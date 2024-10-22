@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 public class Server extends HttpServlet {
 
     private static final Logger LOGGER = LogManager.getLogger("root");
+    private static final String dbCloseErrorMsg = "Error while closing DB connection";
 
     protected void logRequest(HttpServletRequest request) {
         String contextPath = "Context path = " + request.getContextPath();
@@ -39,14 +40,14 @@ public class Server extends HttpServlet {
             try {
                 out.println(doGetToDoList(request));
             } catch (SQLException e) {
-                LOGGER.error("Error while closing DB connection",e);
+                LOGGER.error(dbCloseErrorMsg,e);
                 throw new RuntimeException(e);
             }
         } else if (request.getPathInfo().equals("/ToDoLists")) {
             try {
                 out.println(doGetToDoLists(request));
             } catch (SQLException e) {
-                LOGGER.error("Error while closing DB connection",e);
+                LOGGER.error(dbCloseErrorMsg,e);
                 throw new RuntimeException(e);
             }
         } else {
@@ -98,7 +99,7 @@ public class Server extends HttpServlet {
                     response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
             } catch (SQLException e) {
-                LOGGER.error("Error while closing DB connection", e);
+                LOGGER.error(dbCloseErrorMsg, e);
                 throw new RuntimeException(e);
             }
         } else if (request.getPathInfo().equals("/ToDoList")) {
@@ -109,7 +110,7 @@ public class Server extends HttpServlet {
                     response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
             } catch (SQLException e) {
-                LOGGER.error("Error while closing DB connection", e);
+                LOGGER.error(dbCloseErrorMsg, e);
                 throw new RuntimeException(e);
             }
         } else if (request.getPathInfo().equals("/User")) {
@@ -120,10 +121,11 @@ public class Server extends HttpServlet {
                     response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
             } catch (SQLException e) {
-                LOGGER.error("Error while closing DB connection", e);
+                LOGGER.error(dbCloseErrorMsg, e);
                 throw new RuntimeException(e);
             }
         }else {
+            LOGGER.info("POST {} attempted but does not exist", request.getPathInfo());
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
     }
