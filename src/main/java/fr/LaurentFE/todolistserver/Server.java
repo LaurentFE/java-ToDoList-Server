@@ -147,4 +147,73 @@ public class Server extends HttpServlet {
         toDoListAPI.closeDBConnection();
         return res;
     }
+
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) {
+        LOGGER.info("answering to PUT request");
+        logRequest(request);
+
+        try {
+            LOGGER.info("PUT {} initiated", request.getPathInfo());
+            if (request.getPathInfo().equals("/ListItemCheck")) {
+                if (doPutListItemCheck(request)) {
+                    response.setStatus(HttpServletResponse.SC_OK);
+                } else {
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                }
+            } else if (request.getPathInfo().equals("/ListItemName")) {
+                if (doPutListItemName(request)) {
+                    response.setStatus(HttpServletResponse.SC_OK);
+                } else {
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                }
+            } else if (request.getPathInfo().equals("/ToDoListName")) {
+                if (doPutToDoListItemName(request)) {
+                    response.setStatus(HttpServletResponse.SC_OK);
+                } else {
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.error(dbCloseErrorMsg, e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private boolean doPutListItemCheck(HttpServletRequest request) throws SQLException {
+        String user_name = request.getParameter("user_name");
+        String list_name = request.getParameter("list_name");
+        String item_name = request.getParameter("item_name");
+        String is_checked = request.getParameter("is_checked");
+        LOGGER.debug("doPutListItemCheck() - user_name={} - list_name={} - item_name={} - is_checked={}", user_name, list_name, item_name, is_checked);
+
+        ToDoListAPI toDoListAPI = new ToDoListAPI();
+        boolean res = toDoListAPI.updateListItemCheck(user_name, list_name, item_name, is_checked);
+        toDoListAPI.closeDBConnection();
+        return res;
+    }
+
+    private boolean doPutListItemName(HttpServletRequest request) throws SQLException {
+        String user_name = request.getParameter("user_name");
+        String list_name = request.getParameter("list_name");
+        String item_name = request.getParameter("item_name");
+        String new_item_name = request.getParameter("new_item_name");
+        LOGGER.debug("doPutListItemName() - user_name={} - list_name={} - item_name={} - new_item_name={}", user_name, list_name, item_name, new_item_name);
+
+        ToDoListAPI toDoListAPI = new ToDoListAPI();
+        boolean res = toDoListAPI.updateListItemName(user_name, list_name, item_name, new_item_name);
+        toDoListAPI.closeDBConnection();
+        return res;
+    }
+
+    private boolean doPutToDoListItemName(HttpServletRequest request) throws SQLException {
+        String user_name = request.getParameter("user_name");
+        String list_name = request.getParameter("list_name");
+        String new_list_name = request.getParameter("new_list_name");
+        LOGGER.debug("doPutToDoListItemName() - user_name={} - list_name={} - new_list_name={}", user_name, list_name, new_list_name);
+
+        ToDoListAPI toDoListAPI = new ToDoListAPI();
+        boolean res = toDoListAPI.updateToDoListName(user_name, list_name, new_list_name);
+        toDoListAPI.closeDBConnection();
+        return res;
+    }
 }
