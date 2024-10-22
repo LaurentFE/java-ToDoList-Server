@@ -1,58 +1,50 @@
 package fr.LaurentFE.todolistserver;
 
-import com.google.gson.Gson;
+import fr.LaurentFE.todolistserver.config.ConfigurationManager;
+import fr.LaurentFE.todolistserver.config.DBConfig;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Scanner;
 
-public class ToDoListServer {
+public class ToDoListAPI {
 
     private final Connection connection;
+    private static final Logger LOGGER = LogManager.getLogger("root");
 
-    public ToDoListServer() {
-        try {
-            File db_credentials = new File("src/main/resources/db-connection-infos.json");
-            Scanner myReader = new Scanner(db_credentials);
-            StringBuilder json_file = new StringBuilder();
-            while (myReader.hasNextLine()) {
-                json_file.append(myReader.nextLine());
-            }
-            Gson gson = new Gson();
-            DBConfig dbconfig = gson.fromJson(json_file.toString(), DBConfig.class);
-            connection = createDBConnection(dbconfig);
-        } catch (IOException e) {
-            throw new RuntimeException("db-connection-infos.json file not found or not formatted properly", e);
-        }
+    public ToDoListAPI() {
+        ConfigurationManager.getInstance().loadDBConfigurationFile("db-connection-infos.json");
+        DBConfig dbConfig = ConfigurationManager.getInstance().getDbConfig();
+        connection = createDBConnection(dbConfig);
     }
 
-    private ToDoList getToDoList(String user_name, String list_name) {
+    public ToDoList getToDoList(String user_name, String list_name) {
         Integer list_id = getListId(
                 getUserId(user_name),
                 list_name);
-        if (list_id == null) {
-            /*
-                TODO : Can't find a list with this list_name for user_name (Either here or in getListId())
-             */
+        if (list_id == null || list_id == 0) {
+            LOGGER.error("{} list does not exist for user {}", list_name, user_name);
             return null;
         }
         return new ToDoList(list_id, list_name, getListItems(list_id));
     }
 
-    private ArrayList<ToDoList> getToDoLists(String user_name) {
+    public ArrayList<ToDoList> getToDoLists(String user_name) {
         ArrayList<String> list_names = getListNames(user_name);
         ArrayList<ToDoList> lists = new ArrayList<>();
         for( String list_name : list_names) {
             lists.add(getToDoList(user_name, list_name));
         }
-
-        return lists;
+        if (lists.isEmpty()){
+            return null;
+        } else {
+            return lists;
+        }
     }
 
     private Integer getUserId(String userName) {
-        String query = "SELECT user_id FROM user WHERE user_name = '" + userName + "';";
+        String query = "SELECT user_id FROM users WHERE user_name = '" + userName + "';";
         try {
             Statement statement = connection.createStatement();
             ResultSet rs = statement.executeQuery(query);
@@ -60,19 +52,18 @@ public class ToDoListServer {
             if(rs.next()) {
                 i=rs.getInt("user_id");
             }
-            /*
-                TODO : if there is no user_id, i is NULL, and will not be interpreted as null but as 0 later
-             */
             statement.close();
             return i;
         } catch (SQLException e) {
-            throw new RuntimeException("SQL Query error : getUserId", e);
+            String error_msg = "SQL Query error : getUserId";
+            LOGGER.error(error_msg,e);
+            throw new RuntimeException(error_msg, e);
         }
     }
 
     private Integer getListId(Integer user_id, String list_name) {
         String query1 = "SELECT list_id FROM lists WHERE user_id = '"+user_id+"';";
-        String query2 = "SELECT list_id FROM list_name WHERE label = '"+list_name+"';";
+        String query2 = "SELECT list_id FROM list_names WHERE label = '"+list_name+"';";
         try {
             Statement statement = connection.createStatement();
             ResultSet rs = statement.executeQuery(query1);
@@ -94,7 +85,9 @@ public class ToDoListServer {
             return !list_ids.isEmpty() ? list_ids.getFirst() : null;
 
         } catch (SQLException e) {
-            throw new RuntimeException("SQL Query error : getListId", e);
+            String error_msg = "SQL Query error : getListId";
+            LOGGER.error(error_msg,e);
+            throw new RuntimeException(error_msg, e);
         }
     }
 
@@ -122,20 +115,22 @@ public class ToDoListServer {
             statement.close();
             return listItems;
         } catch (SQLException e) {
-            throw new RuntimeException("SQL Query error : getListItemNames", e);
+            String error_msg = "SQL Query error : getListItemNames";
+            LOGGER.error(error_msg,e);
+            throw new RuntimeException(error_msg, e);
         }
     }
 
     private ArrayList<String> getListNames(String user_name) {
         String query = "SELECT label\n" +
-                "FROM list_name\n" +
+                "FROM list_names\n" +
                 "WHERE list_id IN (\n" +
                 "\tSELECT list_id\n" +
                 "\tFROM lists\n" +
                 "\tWHERE user_id = (\n" +
-                "\t\tSELECT user.user_id \n" +
-                "\t\tFROM user \n" +
-                "\t\tWHERE user.user_name = '"+user_name+"'\n" +
+                "\t\tSELECT users.user_id \n" +
+                "\t\tFROM users \n" +
+                "\t\tWHERE users.user_name = '"+user_name+"'\n" +
                 "));";
         try {
             Statement statement = connection.createStatement();
@@ -149,12 +144,15 @@ public class ToDoListServer {
             statement.close();
             return listNames;
         } catch (SQLException e) {
-            throw new RuntimeException("SQL Query error : getListNames", e);
+            String error_msg = "SQL Query error : getListNames";
+            LOGGER.error(error_msg,e);
+            throw new RuntimeException(error_msg, e);
         }
     }
 
     Connection createDBConnection(DBConfig conf){
         try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection(
                     conf.getDb_url(),
                     conf.getDb_user(),
@@ -163,50 +161,15 @@ public class ToDoListServer {
             System.out.println("Connected to database");
             return con;
         }  catch (SQLException e) {
-            throw new RuntimeException("MySQL connection error", e);
+            String error_msg = "MySQL connection error";
+            LOGGER.error(error_msg,e);
+            throw new RuntimeException(error_msg, e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public void closeDBConnection() throws SQLException {
         connection.close();
-    }
-
-    public static void main(String[] args) {
-        ToDoListServer serv = new ToDoListServer();
-
-
-        System.out.println("Getting Bob's to do lists :");
-
-        ArrayList<ToDoList> todolists = serv.getToDoLists("Bob");
-        for(ToDoList todolist : todolists) {
-            System.out.println("+" + todolist.getLabel());
-            for(ListItem item : todolist.getItems()) {
-                if (item.isChecked()){
-                    System.out.println("X-" + item.getLabel());
-                } else {
-                    System.out.println("--" + item.getLabel());
-                }
-            }
-        }
-
-        System.out.println("Getting John's list named Groceries :");
-
-        ToDoList johntodo = serv.getToDoList("John", "Groceries");
-        if (johntodo!=null) {
-            System.out.println("+" + johntodo.getLabel());
-            for (ListItem item : johntodo.getItems()) {
-                if (item.isChecked()) {
-                    System.out.println("X-" + item.getLabel());
-                } else {
-                    System.out.println("--" + item.getLabel());
-                }
-            }
-        }
-
-        try {
-            serv.closeDBConnection();
-        } catch (SQLException e) {
-            throw new RuntimeException("Couldn't properly close DB connection", e);
-        }
     }
 }

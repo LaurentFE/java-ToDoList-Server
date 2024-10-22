@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.40, for Win64 (x86_64)
 --
--- Host: 127.0.0.1    Database: todolist
+-- Host: 127.0.0.1    Database: todo_lists
 -- ------------------------------------------------------
 -- Server version	8.0.40
 
@@ -19,14 +19,14 @@
 -- Table structure for table `items`
 --
 
-DROP TABLE IF EXISTS items;
+DROP TABLE IF EXISTS `items`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE items (
-  item_id int NOT NULL,
-  label varchar(45) NOT NULL,
-  is_checked tinyint NOT NULL,
-  PRIMARY KEY (item_id)
+CREATE TABLE `items` (
+  `item_id` int NOT NULL AUTO_INCREMENT,
+  `label` varchar(45) NOT NULL DEFAULT 'to do list item',
+  `is_checked` tinyint NOT NULL DEFAULT '0',
+  PRIMARY KEY (`item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -34,26 +34,25 @@ CREATE TABLE items (
 -- Dumping data for table `items`
 --
 
-LOCK TABLES items WRITE;
-/*!40000 ALTER TABLE items DISABLE KEYS */;
-INSERT INTO items VALUES (0,'Milk',1),(1,'Cookies',0),(2,'Jumping jacks',0),(3,'Push ups',0),(4,'Honey',0),(5,'Ginger',1);
-/*!40000 ALTER TABLE items ENABLE KEYS */;
+LOCK TABLES `items` WRITE;
+/*!40000 ALTER TABLE `items` DISABLE KEYS */;
+/*!40000 ALTER TABLE `items` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
 -- Table structure for table `list_items`
 --
 
-DROP TABLE IF EXISTS list_items;
+DROP TABLE IF EXISTS `list_items`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE list_items (
-  list_id int NOT NULL,
-  item_id int NOT NULL,
-  PRIMARY KEY (list_id,item_id),
-  KEY fki_item_id_idx (item_id),
-  CONSTRAINT fk_list_id_2 FOREIGN KEY (list_id) REFERENCES lists (list_id),
-  CONSTRAINT fki_item_id_2 FOREIGN KEY (item_id) REFERENCES items (item_id)
+CREATE TABLE `list_items` (
+  `list_id` int NOT NULL,
+  `item_id` int NOT NULL,
+  PRIMARY KEY (`list_id`,`item_id`),
+  KEY `fk_list_items_item_id_idx` (`item_id`),
+  CONSTRAINT `fk_list_items_item_id` FOREIGN KEY (`item_id`) REFERENCES `items` (`item_id`),
+  CONSTRAINT `fk_list_items_list_id` FOREIGN KEY (`list_id`) REFERENCES `lists` (`list_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -61,50 +60,48 @@ CREATE TABLE list_items (
 -- Dumping data for table `list_items`
 --
 
-LOCK TABLES list_items WRITE;
-/*!40000 ALTER TABLE list_items DISABLE KEYS */;
-INSERT INTO list_items VALUES (0,0),(0,1),(1,2),(1,3),(2,4),(2,5);
-/*!40000 ALTER TABLE list_items ENABLE KEYS */;
+LOCK TABLES `list_items` WRITE;
+/*!40000 ALTER TABLE `list_items` DISABLE KEYS */;
+/*!40000 ALTER TABLE `list_items` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `list_name`
+-- Table structure for table `list_names`
 --
 
-DROP TABLE IF EXISTS list_name;
+DROP TABLE IF EXISTS `list_names`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE list_name (
-  list_id int NOT NULL,
-  label varchar(45) DEFAULT NULL,
-  PRIMARY KEY (list_id),
-  CONSTRAINT fk_list_id FOREIGN KEY (list_id) REFERENCES lists (list_id)
+CREATE TABLE `list_names` (
+  `list_id` int NOT NULL AUTO_INCREMENT,
+  `label` varchar(45) NOT NULL DEFAULT 'to do list name',
+  PRIMARY KEY (`list_id`),
+  CONSTRAINT `fk_list_names_list_id` FOREIGN KEY (`list_id`) REFERENCES `lists` (`list_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `list_name`
+-- Dumping data for table `list_names`
 --
 
-LOCK TABLES list_name WRITE;
-/*!40000 ALTER TABLE list_name DISABLE KEYS */;
-INSERT INTO list_name VALUES (0,'Groceries'),(1,'Sport'),(2,'Groceries');
-/*!40000 ALTER TABLE list_name ENABLE KEYS */;
+LOCK TABLES `list_names` WRITE;
+/*!40000 ALTER TABLE `list_names` DISABLE KEYS */;
+/*!40000 ALTER TABLE `list_names` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
 -- Table structure for table `lists`
 --
 
-DROP TABLE IF EXISTS lists;
+DROP TABLE IF EXISTS `lists`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE lists (
-  list_id int NOT NULL,
-  user_id int DEFAULT NULL,
-  PRIMARY KEY (list_id),
-  KEY fk_used_id_idx (user_id),
-  CONSTRAINT fk_used_id FOREIGN KEY (user_id) REFERENCES `user` (user_id)
+CREATE TABLE `lists` (
+  `list_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  PRIMARY KEY (`list_id`),
+  KEY `fk_lists_user_id_idx` (`user_id`),
+  CONSTRAINT `fk_lists_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -112,35 +109,33 @@ CREATE TABLE lists (
 -- Dumping data for table `lists`
 --
 
-LOCK TABLES lists WRITE;
-/*!40000 ALTER TABLE lists DISABLE KEYS */;
-INSERT INTO lists VALUES (0,0),(1,0),(2,1);
-/*!40000 ALTER TABLE lists ENABLE KEYS */;
+LOCK TABLES `lists` WRITE;
+/*!40000 ALTER TABLE `lists` DISABLE KEYS */;
+/*!40000 ALTER TABLE `lists` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `user`
+-- Table structure for table `users`
 --
 
-DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `user` (
-  user_id int NOT NULL,
-  user_name varchar(45) DEFAULT NULL,
-  PRIMARY KEY (user_id),
-  UNIQUE KEY user_name_UNIQUE (user_name)
+CREATE TABLE `users` (
+  `user_id` int NOT NULL AUTO_INCREMENT,
+  `user_name` varchar(45) NOT NULL DEFAULT 'user name',
+  PRIMARY KEY (`user_id`),
+  UNIQUE KEY `user_name_UNIQUE` (`user_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `user`
+-- Dumping data for table `users`
 --
 
-LOCK TABLES user WRITE;
-/*!40000 ALTER TABLE user DISABLE KEYS */;
-INSERT INTO user VALUES (0,'Bob'),(1,'John');
-/*!40000 ALTER TABLE user ENABLE KEYS */;
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -152,4 +147,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-10-21 14:31:55
+-- Dump completed on 2024-10-22 13:14:17
