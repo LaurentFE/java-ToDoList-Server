@@ -135,6 +135,82 @@ public class ToDoListAPI {
         }
     }
 
+    public boolean updateToDoListName(String user_name, String list_name, String new_list_name) {
+        Integer user_id = getUserId(user_name);
+        Integer list_id = getListId(user_id, list_name);
+        if (list_id == null || list_id == 0 || user_id == null || user_id == 0) {
+            LOGGER.info("Can't update list={} to new_list={} for user {} : list or user doesn't exist", list_name, new_list_name, user_name);
+            return false;
+        }
+        try {
+            String query = "UPDATE list_names SET label = ? WHERE (list_id = ?);";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, new_list_name);
+            statement.setInt(2, list_id);
+            statement.executeUpdate();
+            statement.close();
+            return true;
+        } catch (SQLException e) {
+            String error_msg = "SQL Query error : updateToDoListName";
+            LOGGER.error(error_msg,e);
+            return false;
+        }
+    }
+
+    public boolean updateListItemName(String user_name, String list_name, String item_name, String new_item_name) {
+        Integer user_id = getUserId(user_name);
+        Integer list_id = getListId(user_id, list_name);
+        Integer item_id = getItemId(list_id, item_name);
+        if (list_id == null || list_id == 0 || user_id == null || user_id == 0 || item_id == null || item_id == 0) {
+            LOGGER.info("Can't update item={} to new_item={} for list {} user {}: item, list or user doesn't exist", item_name, new_item_name, list_name, user_name);
+            return false;
+        }
+        try {
+            String query = "UPDATE items SET label = ? WHERE (item_id = ?);";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, new_item_name);
+            statement.setInt(2, item_id);
+            statement.executeUpdate();
+            statement.close();
+            return true;
+        } catch (SQLException e) {
+            String error_msg = "SQL Query error : updateToDoListName";
+            LOGGER.error(error_msg,e);
+            return false;
+        }
+    }
+
+    public boolean updateListItemCheck(String user_name, String list_name, String item_name, String isChecked) {
+        Integer user_id = getUserId(user_name);
+        Integer list_id = getListId(user_id, list_name);
+        Integer item_id = getItemId(list_id, item_name);
+        if (list_id == null || list_id == 0 || user_id == null || user_id == 0 || item_id == null || item_id == 0) {
+            LOGGER.info("Can't update item={} to check={} for list {} user {}: item, list or user doesn't exist", item_name, isChecked, list_name, user_name);
+            return false;
+        }
+        try {
+            String query = "UPDATE items SET is_checked = ? WHERE (item_id = ?);";
+            PreparedStatement statement = connection.prepareStatement(query);
+            if (isChecked.equalsIgnoreCase("true")) {
+                statement.setBoolean(1, true);
+            } else if (isChecked.equalsIgnoreCase("false")) {
+                statement.setBoolean(1, false);
+            } else {
+                LOGGER.info("updateListItemCheck: Incorrect value for PUT isChecked param");
+                statement.close();
+                return false;
+            }
+            statement.setInt(2, item_id);
+            statement.executeUpdate();
+            statement.close();
+            return true;
+        } catch (SQLException e) {
+            String error_msg = "SQL Query error : updateToDoListName";
+            LOGGER.error(error_msg,e);
+            return false;
+        }
+    }
+
     private Integer getUserId(String userName) {
         String query = "SELECT user_id FROM users WHERE user_name = ?;";
         try {
@@ -185,6 +261,32 @@ public class ToDoListAPI {
             String error_msg = "SQL Query error : getListId";
             LOGGER.error(error_msg,e);
             throw new RuntimeException(error_msg, e);
+        }
+    }
+
+    private Integer getItemId(Integer list_id, String item_name) {
+        String query = """
+                SELECT items.item_id
+                FROM list_items JOIN items
+                WHERE (items.item_id = list_items.item_id
+                \tAND list_items.list_id = ?
+                \tAND items.label = ?);
+                """;
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setInt(1, list_id);
+            statement.setString(2, item_name);
+            ResultSet rs = statement.executeQuery();
+            Integer item_id = null;
+            if (rs.next()) {
+                item_id = rs.getInt(1);
+            }
+            statement.close();
+            return item_id;
+        } catch (SQLException e) {
+                String error_msg = "SQL Query error : getItemId";
+                LOGGER.error(error_msg,e);
+                throw new RuntimeException(error_msg, e);
         }
     }
 
