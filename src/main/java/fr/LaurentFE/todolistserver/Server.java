@@ -35,24 +35,19 @@ public class Server extends HttpServlet {
         logRequest(request);
         PrintWriter out = response.getWriter();
 
-        LOGGER.info("GET {} initiated", request.getPathInfo());
-        if (request.getPathInfo().equals("/ToDoList")) {
-            try {
+        try {
+            LOGGER.info("GET {} initiated", request.getPathInfo());
+            if (request.getPathInfo().equals("/ToDoList")) {
                 out.println(doGetToDoList(request));
-            } catch (SQLException e) {
-                LOGGER.error(dbCloseErrorMsg,e);
-                throw new RuntimeException(e);
-            }
-        } else if (request.getPathInfo().equals("/ToDoLists")) {
-            try {
+            } else if (request.getPathInfo().equals("/ToDoLists")) {
                 out.println(doGetToDoLists(request));
-            } catch (SQLException e) {
-                LOGGER.error(dbCloseErrorMsg,e);
-                throw new RuntimeException(e);
+            } else {
+                LOGGER.info("GET {} attempted but does not exist", request.getPathInfo());
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
-        } else {
-            LOGGER.info("GET {} attempted but does not exist", request.getPathInfo());
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        } catch (SQLException e) {
+            LOGGER.error(dbCloseErrorMsg,e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -90,43 +85,33 @@ public class Server extends HttpServlet {
         LOGGER.info("answering to POST request");
         logRequest(request);
 
-        LOGGER.info("POST {} initiated", request.getPathInfo());
-        if (request.getPathInfo().equals("/ListItem")) {
-            try {
+        try {
+            LOGGER.info("POST {} initiated", request.getPathInfo());
+            if (request.getPathInfo().equals("/ListItem")) {
                 if (doPostListItem(request)) {
                     response.setStatus(HttpServletResponse.SC_CREATED);
                 } else {
                     response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
-            } catch (SQLException e) {
-                LOGGER.error(dbCloseErrorMsg, e);
-                throw new RuntimeException(e);
-            }
-        } else if (request.getPathInfo().equals("/ToDoList")) {
-            try {
+            } else if (request.getPathInfo().equals("/ToDoList")) {
                 if (doPostToDoList(request)) {
                     response.setStatus(HttpServletResponse.SC_CREATED);
                 } else {
                     response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
-            } catch (SQLException e) {
-                LOGGER.error(dbCloseErrorMsg, e);
-                throw new RuntimeException(e);
-            }
-        } else if (request.getPathInfo().equals("/User")) {
-            try {
+            } else if (request.getPathInfo().equals("/User")) {
                 if (doPostUser(request)) {
                     response.setStatus(HttpServletResponse.SC_CREATED);
                 } else {
                     response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
-            } catch (SQLException e) {
-                LOGGER.error(dbCloseErrorMsg, e);
-                throw new RuntimeException(e);
+            } else {
+                LOGGER.info("POST {} attempted but does not exist", request.getPathInfo());
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
-        }else {
-            LOGGER.info("POST {} attempted but does not exist", request.getPathInfo());
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        } catch (SQLException e) {
+            LOGGER.error(dbCloseErrorMsg, e);
+            throw new RuntimeException(e);
         }
     }
 
