@@ -1,34 +1,22 @@
 package fr.LaurentFE.todolistserver;
 
-import com.google.gson.Gson;
+import fr.LaurentFE.todolistserver.config.ConfigurationManager;
+import fr.LaurentFE.todolistserver.config.DBConfig;
 
-import java.io.File;
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Scanner;
 
-public class ToDoListServer {
+public class ToDoListAPI {
 
     private final Connection connection;
 
-    public ToDoListServer() {
-        try {
-            File db_credentials = new File("src/main/resources/db-connection-infos.json");
-            Scanner myReader = new Scanner(db_credentials);
-            StringBuilder json_file = new StringBuilder();
-            while (myReader.hasNextLine()) {
-                json_file.append(myReader.nextLine());
-            }
-            Gson gson = new Gson();
-            DBConfig dbconfig = gson.fromJson(json_file.toString(), DBConfig.class);
-            connection = createDBConnection(dbconfig);
-        } catch (IOException e) {
-            throw new RuntimeException("db-connection-infos.json file not found or not formatted properly", e);
-        }
+    public ToDoListAPI() {
+        ConfigurationManager.getInstance().loadDBConfigurationFile("src/main/resources/db-connection-infos.json");
+        DBConfig dbConfig = ConfigurationManager.getInstance().getDbConfig();
+        connection = createDBConnection(dbConfig);
     }
 
-    private ToDoList getToDoList(String user_name, String list_name) {
+    public ToDoList getToDoList(String user_name, String list_name) {
         Integer list_id = getListId(
                 getUserId(user_name),
                 list_name);
@@ -41,7 +29,7 @@ public class ToDoListServer {
         return new ToDoList(list_id, list_name, getListItems(list_id));
     }
 
-    private ArrayList<ToDoList> getToDoLists(String user_name) {
+    public ArrayList<ToDoList> getToDoLists(String user_name) {
         ArrayList<String> list_names = getListNames(user_name);
         ArrayList<ToDoList> lists = new ArrayList<>();
         for( String list_name : list_names) {
@@ -172,7 +160,7 @@ public class ToDoListServer {
     }
 
     public static void main(String[] args) {
-        ToDoListServer serv = new ToDoListServer();
+        ToDoListAPI serv = new ToDoListAPI();
 
 
         System.out.println("Getting Bob's to do lists :");
@@ -202,6 +190,8 @@ public class ToDoListServer {
                 }
             }
         }
+
+
 
         try {
             serv.closeDBConnection();

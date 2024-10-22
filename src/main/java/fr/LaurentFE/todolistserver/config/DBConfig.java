@@ -1,4 +1,4 @@
-package fr.LaurentFE.todolistserver;
+package fr.LaurentFE.todolistserver.config;
 
 public class DBConfig {
     private String db_url;

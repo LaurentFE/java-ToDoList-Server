@@ -13,3 +13,7 @@ Using IDE IntelliJ
 MySQL Database
 
 Maven build
+
+Tomcat v9 web server
+
+javax.servlet
