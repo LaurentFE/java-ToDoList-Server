@@ -17,3 +17,5 @@ Maven build
 Tomcat v9 web server
 
 javax.servlet
+
+log4j
