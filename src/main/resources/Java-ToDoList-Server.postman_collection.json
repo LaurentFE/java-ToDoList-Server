@@ -1,0 +1,275 @@
+{
+	"info": {
+		"_postman_id": "875ca77f-5757-4c28-9d74-804ccffc9b0e",
+		"name": "Java-ToDoList-Server",
+		"description": "Collection of Java-ToDoList-Server endpoints usage",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39204211"
+	},
+	"item": [
+		{
+			"name": "GET rest/ToDoLists",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/Java-ToDoList-Server/rest/ToDoLists?user_name=Bob",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"Java-ToDoList-Server",
+						"rest",
+						"ToDoLists"
+					],
+					"query": [
+						{
+							"key": "user_name",
+							"value": "Bob"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET rest/ToDoList",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/Java-ToDoList-Server/rest/ToDoList?user_name=Bob&list_name=Groceries",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"Java-ToDoList-Server",
+						"rest",
+						"ToDoList"
+					],
+					"query": [
+						{
+							"key": "user_name",
+							"value": "Bob"
+						},
+						{
+							"key": "list_name",
+							"value": "Groceries"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST rest/User",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/Java-ToDoList-Server/rest/User?user_name=Philibert",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"Java-ToDoList-Server",
+						"rest",
+						"User"
+					],
+					"query": [
+						{
+							"key": "user_name",
+							"value": "Philibert"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST rest/ToDoList",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/Java-ToDoList-Server/rest/ToDoList?user_name=Philibert&list_name=Farming",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"Java-ToDoList-Server",
+						"rest",
+						"ToDoList"
+					],
+					"query": [
+						{
+							"key": "user_name",
+							"value": "Philibert"
+						},
+						{
+							"key": "list_name",
+							"value": "Farming"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST rest/ListItem",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/Java-ToDoList-Server/rest/ListItem?user_name=Philibert&list_name=Farming&item_name=Till the soil",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"Java-ToDoList-Server",
+						"rest",
+						"ListItem"
+					],
+					"query": [
+						{
+							"key": "user_name",
+							"value": "Philibert"
+						},
+						{
+							"key": "list_name",
+							"value": "Farming"
+						},
+						{
+							"key": "item_name",
+							"value": "Till the soil"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT rest/ToDoListName",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/Java-ToDoList-Server/rest/ToDoListName?user_name=Philibert&list_name=Farming&new_list_name=Farming like a BOSS",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"Java-ToDoList-Server",
+						"rest",
+						"ToDoListName"
+					],
+					"query": [
+						{
+							"key": "user_name",
+							"value": "Philibert"
+						},
+						{
+							"key": "list_name",
+							"value": "Farming"
+						},
+						{
+							"key": "new_list_name",
+							"value": "Farming like a BOSS"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT rest/ListItemName",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/Java-ToDoList-Server/rest/ListItemName?user_name=Philibert&list_name=Farming&item_name=Till the soil&new_item_name=Till the soil HARD",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"Java-ToDoList-Server",
+						"rest",
+						"ListItemName"
+					],
+					"query": [
+						{
+							"key": "user_name",
+							"value": "Philibert"
+						},
+						{
+							"key": "list_name",
+							"value": "Farming"
+						},
+						{
+							"key": "item_name",
+							"value": "Till the soil"
+						},
+						{
+							"key": "new_item_name",
+							"value": "Till the soil HARD"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PUT rest/ListItemCheck",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/Java-ToDoList-Server/rest/ListItemCheck?user_name=Philibert&list_name=Farming&item_name=Till the soil&is_checked=true",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"Java-ToDoList-Server",
+						"rest",
+						"ListItemCheck"
+					],
+					"query": [
+						{
+							"key": "user_name",
+							"value": "Philibert"
+						},
+						{
+							"key": "list_name",
+							"value": "Farming"
+						},
+						{
+							"key": "item_name",
+							"value": "Till the soil"
+						},
+						{
+							"key": "is_checked",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
