@@ -43,11 +43,104 @@ public class ToDoListAPI {
         }
     }
 
-    private Integer getUserId(String userName) {
-        String query = "SELECT user_id FROM users WHERE user_name = '" + userName + "';";
+    public boolean createUser(String user_name) {
         try {
-            Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery(query);
+            String query = "INSERT INTO users (user_name) VALUE (?)";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, user_name);
+            statement.executeUpdate();
+            statement.close();
+            return true;
+        } catch (SQLException e) {
+            String error_msg = "SQL Query error : createUser";
+            LOGGER.error(error_msg,e);
+            return false;
+        }
+    }
+
+    public boolean createListForUser(String user_name, String list_name) {
+        Integer user_id = getUserId(user_name);
+        if (user_id == null || user_id == 0) {
+            LOGGER.error("{} user does not exist", user_name);
+            return false;
+        }
+        try {
+            String query1 = "INSERT INTO lists (user_id) VALUES (?);";
+            String query2 = "SELECT LAST_INSERT_ID();";
+            PreparedStatement statement1 = connection.prepareStatement(query1);
+            statement1.setInt(1, user_id);
+            statement1.executeUpdate();
+            statement1.close();
+
+            PreparedStatement statement2 = connection.prepareStatement(query2);
+            ResultSet rs = statement2.executeQuery(query2);
+            Integer list_id = null;
+            if(rs.next()) {
+                list_id = rs.getInt(1);
+                statement2.close();
+                String query3 = "INSERT INTO list_names (list_id, label) VALUES (?, ?);";
+                PreparedStatement statement3 = connection.prepareStatement(query3);
+                statement3.setInt(1, list_id);
+                statement3.setString(2, list_name);
+                statement3.executeUpdate();
+                statement3.close();
+                return true;
+            } else {
+                LOGGER.error("createListForUser: couldn't fetch LAST_INSERT_ID() for list_name {}", list_name);
+                return false;
+            }
+        } catch (SQLException e) {
+            String error_msg = "SQL Query error : createListForUser";
+            LOGGER.error(error_msg,e);
+            return false;
+        }
+    }
+
+    public boolean createItemForList(String user_name, String list_name, String item_name) {
+        Integer user_id = getUserId(user_name);
+        Integer list_id = getListId(user_id, list_name);
+        if (list_id == null || list_id == 0 || user_id == null || user_id == 0) {
+            LOGGER.info("Can't insert item={} in list={} for user {} : list or user doesn't exist", item_name, list_name, user_name);
+            return false;
+        }
+        try {
+            String query1 = "INSERT INTO items (label) VALUE (?);";
+            String query2 = "SELECT LAST_INSERT_ID();";
+            PreparedStatement statement1 = connection.prepareStatement(query1);
+            statement1.setString(1, item_name);
+            statement1.executeUpdate();
+            statement1.close();
+
+            PreparedStatement statement2 = connection.prepareStatement(query2);
+            ResultSet rs = statement2.executeQuery(query2);
+            Integer item_id = null;
+            if (rs.next()) {
+                item_id = rs.getInt(1);
+                statement2.close();
+                String query3 = "INSERT INTO list_items (list_id, item_id) VALUES (?, ?);";
+                PreparedStatement statement3 = connection.prepareStatement(query3);
+                statement3.setInt(1, list_id);
+                statement3.setInt(2, item_id);
+                statement3.executeUpdate();
+                statement3.close();
+                return true;
+            } else {
+                LOGGER.error("createItemForList: couldn't fetch LAST_INSERT_ID() for item {}", item_name);
+                return false;
+            }
+        } catch (SQLException e) {
+            String error_msg = "SQL Query error : createItemForList";
+            LOGGER.error(error_msg,e);
+            return false;
+        }
+    }
+
+    private Integer getUserId(String userName) {
+        String query = "SELECT user_id FROM users WHERE user_name = ?;";
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, userName);
+            ResultSet rs = statement.executeQuery();
             Integer i = null;
             if(rs.next()) {
                 i=rs.getInt("user_id");
@@ -62,18 +155,22 @@ public class ToDoListAPI {
     }
 
     private Integer getListId(Integer user_id, String list_name) {
-        String query1 = "SELECT list_id FROM lists WHERE user_id = '"+user_id+"';";
-        String query2 = "SELECT list_id FROM list_names WHERE label = '"+list_name+"';";
+        String query1 = "SELECT list_id FROM lists WHERE user_id = ?;";
+        String query2 = "SELECT list_id FROM list_names WHERE label = ?;";
         try {
-            Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery(query1);
+            PreparedStatement statement1 = connection.prepareStatement(query1);
+            statement1.setInt(1, user_id);
+            ResultSet rs = statement1.executeQuery();
             ArrayList<Integer> user_list_ids = new ArrayList<>();
             while(rs.next()) {
                 user_list_ids.add(rs.getInt("list_id"));
 
             }
+            statement1.close();
             ArrayList<Integer> name_list_ids = new ArrayList<>();
-            rs = statement.executeQuery(query2);
+            PreparedStatement statement2 = connection.prepareStatement(query2);
+            statement2.setString(1, list_name);
+            rs = statement2.executeQuery();
             while(rs.next()) {
                 name_list_ids.add(rs.getInt("list_id"));
             }
@@ -81,7 +178,7 @@ public class ToDoListAPI {
             ArrayList<Integer> list_ids = new ArrayList<>(user_list_ids);
             list_ids.retainAll(name_list_ids);
 
-            statement.close();
+            statement2.close();
             return !list_ids.isEmpty() ? list_ids.getFirst() : null;
 
         } catch (SQLException e) {
@@ -92,16 +189,18 @@ public class ToDoListAPI {
     }
 
     private ArrayList<ListItem> getListItems(Integer list_id) {
-        String query = "SELECT item_id, label, is_checked\n" +
-                "FROM items\n" +
-                "WHERE item_id IN (\n" +
-                "\tSELECT item_id\n" +
-                "\tFROM list_items\n" +
-                "\tWHERE list_id = "+list_id+"\n" +
-                ");";
+        String query = """
+                SELECT item_id, label, is_checked
+                FROM items
+                WHERE item_id IN (
+                \tSELECT item_id
+                \tFROM list_items
+                \tWHERE list_id = ?
+                );""";
         try {
-            Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery(query);
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setInt(1, list_id);
+            ResultSet rs = statement.executeQuery();
             ArrayList<ListItem> listItems = new ArrayList<>();
 
             while (rs.next()) {
@@ -122,19 +221,21 @@ public class ToDoListAPI {
     }
 
     private ArrayList<String> getListNames(String user_name) {
-        String query = "SELECT label\n" +
-                "FROM list_names\n" +
-                "WHERE list_id IN (\n" +
-                "\tSELECT list_id\n" +
-                "\tFROM lists\n" +
-                "\tWHERE user_id = (\n" +
-                "\t\tSELECT users.user_id \n" +
-                "\t\tFROM users \n" +
-                "\t\tWHERE users.user_name = '"+user_name+"'\n" +
-                "));";
+        String query = """
+                SELECT label
+                FROM list_names
+                WHERE list_id IN (
+                \tSELECT list_id
+                \tFROM lists
+                \tWHERE user_id = (
+                \t\tSELECT users.user_id\s
+                \t\tFROM users\s
+                \t\tWHERE users.user_name = ?
+                ));""";
         try {
-            Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery(query);
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, user_name);
+            ResultSet rs = statement.executeQuery();
             ArrayList<String> listNames = new ArrayList<>();
             while (rs.next()) {
                 String label = rs.getString("label");
@@ -158,7 +259,7 @@ public class ToDoListAPI {
                     conf.getDb_user(),
                     conf.getDb_pass());
 
-            System.out.println("Connected to database");
+            LOGGER.info("Connection to DB successful");
             return con;
         }  catch (SQLException e) {
             String error_msg = "MySQL connection error";
@@ -170,6 +271,7 @@ public class ToDoListAPI {
     }
 
     public void closeDBConnection() throws SQLException {
+        LOGGER.info("Disconnection from DB successful");
         connection.close();
     }
 }
