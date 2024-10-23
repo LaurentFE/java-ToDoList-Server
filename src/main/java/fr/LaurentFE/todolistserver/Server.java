@@ -41,6 +41,8 @@ public class Server extends HttpServlet {
                 out.println(doGetToDoList(request));
             } else if (request.getPathInfo().equals("/ToDoLists")) {
                 out.println(doGetToDoLists(request));
+            } else if (request.getPathInfo().equals("/Users")) {
+                out.println(doGetUsers());
             } else {
                 LOGGER.info("GET {} attempted but does not exist", request.getPathInfo());
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -79,6 +81,20 @@ public class Server extends HttpServlet {
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         return gson.toJson(todos);
+    }
+
+    private String doGetUsers() throws SQLException {
+        LOGGER.debug("doGetToDoLists()");
+        ToDoListAPI toDoListAPI = new ToDoListAPI();
+        ArrayList<User> users = toDoListAPI.getUsers();
+        toDoListAPI.closeDBConnection();
+
+        if (users == null) {
+            return "{}";
+        }
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(users);
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {

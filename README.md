@@ -20,6 +20,7 @@ This is a WIP of a Java server that connects to a MySQL Database to store todo l
 endpoints to provide the to do lists to a client.
 
 Available endpoints allow :
+- Restitution of all users
 - Restitution of a user's specific todo list
 - Restitution of all of a user's todo lists
 - Creation of user 
