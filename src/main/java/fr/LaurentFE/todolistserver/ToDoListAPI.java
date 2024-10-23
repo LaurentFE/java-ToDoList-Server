@@ -43,6 +43,29 @@ public class ToDoListAPI {
         }
     }
 
+    public ArrayList<User> getUsers() {
+        ArrayList<User> users = new ArrayList<>();
+        String query = """
+                SELECT user_id, user_name
+                FROM users;
+                """;
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                User user = new User(rs.getInt("user_id"), rs.getString("user_name"));
+                users.add(user);
+            }
+
+            statement.close();
+            return users;
+        } catch (SQLException e) {
+            String error_msg = "SQL Query error : getUsers";
+            LOGGER.error(error_msg,e);
+            throw new RuntimeException(error_msg, e);
+        }
+    }
+
     public boolean createUser(String user_name) {
         try {
             String query = "INSERT INTO users (user_name) VALUE (?)";

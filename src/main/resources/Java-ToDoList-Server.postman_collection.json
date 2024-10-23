@@ -8,6 +8,27 @@
 	},
 	"item": [
 		{
+			"name": "GET rest/Users",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/Java-ToDoList-Server/rest/Users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"Java-ToDoList-Server",
+						"rest",
+						"Users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "GET rest/ToDoLists",
 			"request": {
 				"method": "GET",
