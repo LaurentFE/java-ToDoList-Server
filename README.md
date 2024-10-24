@@ -16,8 +16,8 @@ import in POSTMAN, you can use the pre-made requests to interact with all availa
 
 ## What
 
-This is a WIP of a Java server that connects to a MySQL Database to store todo lists for users, and expose API 
-endpoints to provide the to do lists to a client.
+This is a Java server that connects to a MySQL Database to store todo lists for users, and expose API 
+endpoints to provide the to do lists to a client application (https://github.com/LaurentFE/Java-ToDoList-Client).
 
 Available endpoints allow :
 - Restitution of all users
@@ -30,13 +30,14 @@ Available endpoints allow :
 - Update of list item name
 - Update of list item status (checked/unchecked)
 
-DELETE endpoints may or may not be implemented, they just introduce respect of the table's constraints with the many 
+DELETE endpoints will not be implemented, they just introduce respect of the table's constraints with the many 
 foreign keys referenced between tables, so the DELETE SQL statements should be handled in the proper order. Not exactly 
-a lot to learn in this exercise.
+a lot to learn in this exercise, and this is not exactly a real product that will have real users.
 
 The behaviour of the endpoints is not sophisticated : they don't check for the presence of the correct parameters, don't
-give a response body to explained why a call failed, basically just send HTTP code "OK" and send the data for GET, "CREATED" for 
-POST, and "OK" for  PUT endpoints, or "INTERNAL_ERROR" for everything else.
+give a response body to explain why a call failed, basically just send HTTP code "OK" and send the data for GET, 
+"CREATED" for POST, and "OK" for PUT endpoints, or "INTERNAL_ERROR" for everything else.
+
 Server returns HTTP code "NOT_FOUND" when calling a non defined endpoint.
 
 While I know this is not the best way to handle this in production, this is not the goal of this project. I wanted to 
