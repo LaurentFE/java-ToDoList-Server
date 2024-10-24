@@ -356,7 +356,7 @@ public class ToDoListAPI {
                 \t\tSELECT users.user_id\s
                 \t\tFROM users\s
                 \t\tWHERE users.user_name = ?
-                ));""";
+                )) ORDER BY label;""";
         try {
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, user_name);
