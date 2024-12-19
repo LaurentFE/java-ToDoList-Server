@@ -43,6 +43,15 @@ Server returns HTTP code "NOT_FOUND" when calling a non defined endpoint.
 While I know this is not the best way to handle this in production, this is not the goal of this project. I wanted to 
 learn how to make a Java webserver that can accept REST API calls, and handle a MySQL database. Which is now handled.
 
+## Afterthought
+
+This server implementation, if more API routes were to be implemented, would certainly benefit from separating each endpoint into a class, allowing the suppression of the if / else if / ... monitoring the route for each GET / PUT / POST / DELETE.
+
+This way, each class would reprensent an endpoint that would be configured in the web.xml servlet & servlet-mapping, and each class would have its own doGet(), doPut(), doPost() methods, that would have only ONE behaviour to implement and maintain. It would be much cleaner, much more maintainable, and much more scalable.
+
+The API calls could be more refined, use proper payloads in the body of the request instead of giving all the data as parameters of the API route address, and most of all using proper error codes to help any developper hoping to develop a client calling this server.
+A proper API documentation would also be a notable improvement, using Swagger for instance.
+
 ## How
 
 Programmed in Java using IDE IntelliJ, storing data on a MySQL Database. 
