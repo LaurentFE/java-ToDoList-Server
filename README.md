@@ -49,7 +49,7 @@ This server implementation, if more API routes were to be implemented, would cer
 
 This way, each class would reprensent an endpoint that would be configured in the web.xml servlet & servlet-mapping, and each class would have its own doGet(), doPut(), doPost() methods, that would have only ONE behaviour to implement and maintain. It would be much cleaner, much more maintainable, and much more scalable.
 
-The API calls could be more refined, use proper payloads in the body of the request instead of giving all the data as parameters of the API route address, and most of all using proper error codes to help any developper hoping to develop a client calling this server.
+The API calls could be more refined, use routes/ID as endpoints, use proper payloads in the body of the request instead of giving all the data as parameters of the API route address, and most of all using proper error codes to help any developper hoping to develop a client calling this server.
 A proper API documentation would also be a notable improvement, using Swagger for instance.
 
 ## How
